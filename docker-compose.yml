@@ -1,7 +1,39 @@
 version: '3.8'
 
+x-services-templates:
+  backend-app: &backend-app
+    image: docker.io/jairoandre/rb2025-v3:v1
+    networks:
+      - backend
+      - payment-processor
+    depends_on:
+      - service-health
+      - db
+    deploy:
+      resources:
+        limits:
+          cpus: "0.35"
+          memory: "75MB"
+
 services:
-  postgres:
+  # Load Balancer / API Gateway
+  service-health:
+    image: docker.io/jairoandre/rb2025-health:v1
+    container_name: service-health
+    networks:
+      - backend
+      - payment-processor
+    environment:
+      - DEFAULT_URL=http://payment-processor-default:8080
+      - FALLBACK_URL=http://payment-processor-fallback:8080
+    ports:
+      - "9001:9001"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: "25MB"
+  db:
     image: postgres:17-alpine
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -11,8 +43,54 @@ services:
       - POSTGRES_DB=rinha
     ports:
       - "5432:5432"
+    networks:
+      - backend
     deploy:
       resources:
         limits:
-          cpus: "0.3"
-          memory: "80MB"
+          cpus: "0.5"
+          memory: "150MB"
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "9999:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend1
+      - backend2
+    networks:
+      - backend
+      - payment-processor
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: "25MB"
+
+  # Backend Instance 1
+  backend1:
+    <<: *backend-app
+    container_name: backend1
+    environment:
+      - DEFAULT_URL=http://payment-processor-default:8080
+      - FALLBACK_URL=http://payment-processor-fallback:8080
+      - HEALTH_URL=http://service-health:9001
+      - DB_URI=postgres://postgres:postgres@db:5432/rinha?pool_max_conns=50&pool_min_conns=10
+  # Backend Instance 2
+  backend2:
+    <<: *backend-app
+    container_name: backend2
+    environment:
+      - DEFAULT_URL=http://payment-processor-default:8080
+      - FALLBACK_URL=http://payment-processor-fallback:8080
+      - HEALTH_URL=http://service-health:9001
+      - DB_URI=postgres://postgres:postgres@db:5432/rinha?pool_max_conns=50&pool_min_conns=10
+
+networks:
+  backend:
+    driver: bridge
+  payment-processor:
+    external: true
+
