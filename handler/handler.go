@@ -2,20 +2,21 @@ package handler
 
 import (
 	"log"
-	"rb2025-v3/client"
 	"rb2025-v3/model"
+	"rb2025-v3/repository"
+	"time"
 
 	"github.com/mailru/easyjson"
 	"github.com/valyala/fasthttp"
 )
 
 type Handler struct {
-	Jobs   chan<- model.PaymentRequest
-	Client *client.Client
+	Jobs       chan<- model.PaymentRequest
+	Repository *repository.Repository
 }
 
-func NewHandler(jobs chan<- model.PaymentRequest, c *client.Client) *Handler {
-	return &Handler{Jobs: jobs, Client: c}
+func NewHandler(jobs chan<- model.PaymentRequest, r *repository.Repository) *Handler {
+	return &Handler{Jobs: jobs, Repository: r}
 }
 
 func (h *Handler) PostPayments(ctx *fasthttp.RequestCtx) {
@@ -45,7 +46,7 @@ func (h *Handler) PurgePayments(ctx *fasthttp.RequestCtx) {
 		ctx.Error("Method Not Allowed", fasthttp.StatusMethodNotAllowed)
 		return
 	}
-	h.Client.PurgeOnDb()
+	h.Repository.Purge()
 	ctx.SetStatusCode(fasthttp.StatusAccepted)
 }
 
@@ -56,7 +57,15 @@ func (h *Handler) GetSummary(ctx *fasthttp.RequestCtx) {
 	}
 	fromStr := string(ctx.QueryArgs().Peek("from"))
 	toStr := string(ctx.QueryArgs().Peek("to"))
-	summary, err := h.Client.GetSummary(fromStr, toStr)
+	from, err := time.Parse(time.RFC3339, fromStr)
+	if err != nil {
+		from = time.Now().UTC().Add(-24 * time.Hour)
+	}
+	to, err := time.Parse(time.RFC3339, toStr)
+	if err != nil {
+		to = time.Now().UTC()
+	}
+	summary, err := h.Repository.GetSummary(from, to)
 	if err != nil {
 		log.Printf("Error get summary: %v", err)
 		ctx.Error("Error get summary", fasthttp.StatusInternalServerError)

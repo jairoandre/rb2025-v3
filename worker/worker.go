@@ -4,12 +4,14 @@ import (
 	"log"
 	"rb2025-v3/client"
 	"rb2025-v3/model"
+	"rb2025-v3/repository"
 	"time"
 )
 
 type Worker struct {
-	Client           *client.Client
 	Jobs             chan model.PaymentRequest
+	Repository       *repository.Repository
+	Client           *client.Client
 	NumWorkers       int
 	DefaultTolerance int
 	Suspended        bool
@@ -18,17 +20,17 @@ type Worker struct {
 	SuspendedCh      chan struct{}
 }
 
-func NewWorker(c *client.Client, jobs chan model.PaymentRequest, numWorkers, defaultTolerance int) *Worker {
+func NewWorker(jobs chan model.PaymentRequest, r *repository.Repository, c *client.Client, numWorkers, defaultTolerance int) *Worker {
 	return &Worker{
-		Client:       c,
 		Jobs:         jobs,
+		Repository:   r,
+		Client:       c,
 		NumWorkers:   numWorkers,
 		Suspended:    false,
 		ProcessorUrl: c.DefaultUrl,
 		Processor:    0,
 		SuspendedCh:  make(chan struct{}),
 	}
-
 }
 
 func (w *Worker) handleEvent(evt model.PaymentRequest) {
@@ -46,7 +48,10 @@ func (w *Worker) handleEvent(evt model.PaymentRequest) {
 			Processor:     w.Processor,
 			RequestedAt:   requestedAt,
 		}
-		w.Client.SaveOnDb(payment)
+		err := w.Repository.SavePayment(payment)
+		if err != nil {
+			log.Printf("Error on save payment: %v", err)
+		}
 	} else {
 		w.Jobs <- evt
 	}

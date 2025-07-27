@@ -9,6 +9,7 @@ import (
 	"rb2025-v3/client"
 	"rb2025-v3/handler"
 	"rb2025-v3/model"
+	"rb2025-v3/repository"
 	"rb2025-v3/worker"
 	"strconv"
 	"syscall"
@@ -33,13 +34,15 @@ func main() {
 	defaultUrl := readEnv("DEFAULT_URL", "http://localhost:8001")
 	fallbackUrl := readEnv("FALLBACK_URL", "http://localhost:8002")
 	healthUrl := readEnv("HEALTH_URL", "http://localhost:9001")
-	dbUrl := readEnv("DB_URL", "http://localhost:9002")
+	dbUri := readEnv("DB_URI", "postgres://postgres:postgres@localhost:5432/rinha")
 	numWorkers, _ := strconv.Atoi(readEnv("NUM_WORKERS", "2000"))
 	defaultTolerance, _ := strconv.Atoi(readEnv("DEFAULT_TOLERANCE", "1500"))
 
-	c := client.NewClient(defaultUrl, fallbackUrl, healthUrl, dbUrl)
-	h := handler.NewHandler(jobs, c)
-	w := worker.NewWorker(c, jobs, numWorkers, defaultTolerance)
+	r := repository.New(dbUri)
+	defer r.Close()
+	c := client.NewClient(defaultUrl, fallbackUrl, healthUrl)
+	h := handler.NewHandler(jobs, r)
+	w := worker.NewWorker(jobs, r, c, numWorkers, defaultTolerance)
 
 	server := &fasthttp.Server{
 		Handler: func(ctx *fasthttp.RequestCtx) {
