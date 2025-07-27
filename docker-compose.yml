@@ -62,7 +62,7 @@ services:
       - OTHER_URL=http://backend2:9999
       - NUM_WORKERS=550
       - JOB_BUFFER_SIZE=20000
-      - SEMAPHORE_SIZE=25
+      - SEMAPHORE_SIZE=15
       - WORKER_SLEEP=30
   # Backend Instance 2
   backend2:
@@ -75,7 +75,7 @@ services:
       - OTHER_URL=http://backend1:9999
       - NUM_WORKERS=550
       - JOB_BUFFER_SIZE=20000
-      - SEMAPHORE_SIZE=25
+      - SEMAPHORE_SIZE=15
       - WORKER_SLEEP=30
 networks:
   backend:
