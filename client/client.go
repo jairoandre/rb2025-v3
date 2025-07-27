@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"rb2025-v3/model"
 	"time"
 
@@ -127,4 +128,36 @@ func (c *Client) ServiceHealth() (model.ServiceHealthResponse, error) {
 		return serviceHealthResponse, nil
 	}
 	return model.ServiceHealthResponse{}, errors.New("invalid service health response")
+}
+
+func (c *Client) GetOtherSummary(otherUrl, from, to string) (model.SummaryResponse, error) {
+	log.Println(otherUrl)
+	u, err := url.Parse(otherUrl + "/payments-summary")
+	if err != nil {
+		return model.SummaryResponse{}, err
+	}
+	q := u.Query()
+	q.Set("from", from)
+	q.Set("to", to)
+	q.Set("single", "true")
+	u.RawQuery = q.Encode()
+
+	resp, err := c.Client.Get(u.String())
+	if err != nil {
+		log.Printf("Error: %v", err)
+		return model.SummaryResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 200 {
+		var summary model.SummaryResponse
+		err = easyjson.UnmarshalFromReader(resp.Body, &summary)
+		if err != nil {
+			return model.SummaryResponse{}, err
+		}
+		return summary, nil
+	}
+
+	return model.SummaryResponse{}, errors.New("can't get other summary")
+
 }

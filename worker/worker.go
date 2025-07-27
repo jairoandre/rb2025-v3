@@ -17,10 +17,12 @@ type Worker struct {
 	Suspended        bool
 	ProcessorUrl     string
 	Processor        int
+	WorkerSleep      int
 	SuspendedCh      chan struct{}
+	Semaphore        chan struct{}
 }
 
-func NewWorker(jobs chan model.PaymentRequest, r *repository.Repository, c *client.Client, numWorkers, defaultTolerance int) *Worker {
+func NewWorker(jobs chan model.PaymentRequest, r *repository.Repository, c *client.Client, numWorkers, defaultTolerance, semaphoreSize, workerSleep int) *Worker {
 	return &Worker{
 		Jobs:         jobs,
 		Repository:   r,
@@ -30,10 +32,12 @@ func NewWorker(jobs chan model.PaymentRequest, r *repository.Repository, c *clie
 		ProcessorUrl: c.DefaultUrl,
 		Processor:    0,
 		SuspendedCh:  make(chan struct{}),
+		Semaphore:    make(chan struct{}, semaphoreSize),
 	}
 }
 
 func (w *Worker) handleEvent(evt model.PaymentRequest) {
+	w.Semaphore <- struct{}{}
 	requestedAt := time.Now().UTC()
 	requestedAtStr := requestedAt.Format(time.RFC3339Nano)
 	paymentEvent := model.PaymentEvent{
@@ -48,13 +52,12 @@ func (w *Worker) handleEvent(evt model.PaymentRequest) {
 			Processor:     w.Processor,
 			RequestedAt:   requestedAt,
 		}
-		err := w.Repository.SavePayment(payment)
-		if err != nil {
-			log.Printf("Error on save payment: %v", err)
-		}
+		w.Repository.Add(payment)
 	} else {
 		w.Jobs <- evt
 	}
+	<-w.Semaphore
+	time.Sleep(time.Duration(w.WorkerSleep) * time.Millisecond)
 }
 
 func (w *Worker) worker() {

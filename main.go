@@ -30,19 +30,21 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	jobs := make(chan model.PaymentRequest, 100000)
 	defaultUrl := readEnv("DEFAULT_URL", "http://localhost:8001")
 	fallbackUrl := readEnv("FALLBACK_URL", "http://localhost:8002")
 	healthUrl := readEnv("HEALTH_URL", "http://localhost:9001")
-	dbUri := readEnv("DB_URI", "postgres://postgres:postgres@localhost:5432/rinha")
+	otherUrl := readEnv("OTHER_URL", "")
 	numWorkers, _ := strconv.Atoi(readEnv("NUM_WORKERS", "2000"))
 	defaultTolerance, _ := strconv.Atoi(readEnv("DEFAULT_TOLERANCE", "1500"))
+	semaphoreSize, _ := strconv.Atoi(readEnv("SEMAPHORE_SIZE", "50"))
+	jobsBufferSize, _ := strconv.Atoi(readEnv("JOBS_BUFFER_SIZE", "10000"))
+	workerSleep, _ := strconv.Atoi(readEnv("WORKER_SLEEP", "50"))
 
-	r := repository.New(dbUri)
-	defer r.Close()
+	jobs := make(chan model.PaymentRequest, jobsBufferSize)
+	r := repository.NewRepository()
 	c := client.NewClient(defaultUrl, fallbackUrl, healthUrl)
-	h := handler.NewHandler(jobs, r)
-	w := worker.NewWorker(jobs, r, c, numWorkers, defaultTolerance)
+	h := handler.NewHandler(jobs, r, c, otherUrl)
+	w := worker.NewWorker(jobs, r, c, numWorkers, defaultTolerance, semaphoreSize, workerSleep)
 
 	server := &fasthttp.Server{
 		Handler: func(ctx *fasthttp.RequestCtx) {

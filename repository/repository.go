@@ -1,82 +1,48 @@
 package repository
 
 import (
-	"context"
-	"log"
 	"math"
 	"rb2025-v3/model"
+	"sync"
 	"time"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Repository struct {
-	Pool *pgxpool.Pool
+	Payments *sync.Map
 }
 
-func New(dbUri string) *Repository {
-	pool, err := pgxpool.New(context.Background(), dbUri)
-	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
-	}
-	return &Repository{
-		Pool: pool,
-	}
+func NewRepository() *Repository {
+	payments := new(sync.Map)
+	return &Repository{Payments: payments}
 }
 
-func (r *Repository) Close() {
-	r.Pool.Close()
+func (r *Repository) Add(payment model.Payment) {
+	r.Payments.Store(payment.CorrelationID, payment)
 }
 
-func (r *Repository) SavePayment(p model.Payment) error {
-	_, err := r.Pool.Exec(context.Background(),
-		`INSERT INTO payments (correlation_id, amount, requested_at, processor) VALUES ($1, $2, $3, $4)`,
-		p.CorrelationID,
-		p.Amount,
-		p.RequestedAt,
-		p.Processor,
-	)
-	return err
-}
-
-func (r *Repository) Purge() error {
-	_, err := r.Pool.Exec(context.Background(),
-		`DELETE FROM payments`,
-	)
-	return err
-}
-
-func (r *Repository) GetSummary(from, to time.Time) (model.SummaryResponse, error) {
-	rows, err := r.Pool.Query(context.Background(),
-		`SELECT processor, sum(amount), count(*) FROM payments WHERE requested_at BETWEEN $1 AND $2 GROUP BY processor`,
-		from,
-		to,
-	)
-	if err != nil {
-		return model.SummaryResponse{}, err
-	}
-	defer rows.Close()
-
-	var summary model.SummaryResponse
-	for rows.Next() {
-		var processor int
-		var totalAmount float64
-		var totalRequests int
-		if err := rows.Scan(&processor, &totalAmount, &totalRequests); err != nil {
-			return model.SummaryResponse{}, err
+func (r *Repository) GetSummary(from, to time.Time) model.SummaryResponse {
+	var defaultSummary, fallbackSummary model.Summary
+	var defaultTotal, fallbackTotal float64
+	r.Payments.Range(func(key, value any) bool {
+		payment := value.(model.Payment)
+		if payment.RequestedAt.Before(from) || payment.RequestedAt.After(to) {
+			return true
 		}
-		switch processor {
+		switch payment.Processor {
 		case 0:
-			summary.Default.TotalAmount = math.Round(totalAmount*100) / 100
-			summary.Default.TotalRequests = totalRequests
+			defaultTotal += payment.Amount
+			defaultSummary.TotalRequests += 1
 		case 1:
-
-			summary.Fallback.TotalAmount = math.Round(totalAmount*100) / 100
-			summary.Fallback.TotalRequests = totalRequests
+			fallbackTotal += payment.Amount
+			fallbackSummary.TotalRequests += 1
 		}
-	}
-	if rows.Err() != nil {
-		return model.SummaryResponse{}, rows.Err()
-	}
-	return summary, nil
+		return true
+	})
+	defaultSummary.TotalAmount = math.Round(float64(defaultTotal)*100) / 100
+	fallbackSummary.TotalAmount = math.Round(float64(fallbackTotal)*100) / 100
+	return model.SummaryResponse{Default: defaultSummary, Fallback: fallbackSummary}
+}
+
+func (r *Repository) PurgePayments() {
+	r.Payments.Clear()
 }
