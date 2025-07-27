@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"rb2025-v3/model"
 	"time"
 
@@ -17,28 +18,32 @@ type Client struct {
 	DefaultUrl  string
 	FallbackUrl string
 	HealthUrl   string
+	DbUrl       string
 	Client      *http.Client
 }
 
-func NewClient(defaultUrl, fallbackUrl, healthUrl string) *Client {
+func NewClient(defaultUrl, fallbackUrl, healthUrl, dbUrl string) *Client {
+	transport := &http.Transport{
+		MaxIdleConns:        2000, // Increase for high concurrency
+		MaxIdleConnsPerHost: 2000, // Increase for high concurrency
+		IdleConnTimeout:     90 * time.Second,
+		DisableKeepAlives:   false,
+		DialContext: (&net.Dialer{
+			Timeout:   5 * time.Second,  // Lower timeout for faster failover
+			KeepAlive: 60 * time.Second, // Longer keepalive for connection reuse
+		}).DialContext,
+		// Optional: tune TLSHandshakeTimeout, ExpectContinueTimeout, etc.
+	}
 	client := &http.Client{
-		Transport: &http.Transport{
-			MaxIdleConns:        500,
-			MaxIdleConnsPerHost: 500,
-			IdleConnTimeout:     90 * time.Second,
-			DisableKeepAlives:   false,
-			DialContext: (&net.Dialer{
-				Timeout:   10 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-		},
-		Timeout: 10 * time.Second,
+		Transport: transport,
+		Timeout:   5 * time.Second, // Lower timeout for faster error returns
 	}
 	return &Client{
 		DefaultUrl:  defaultUrl,
 		FallbackUrl: fallbackUrl,
 		Client:      client,
 		HealthUrl:   healthUrl,
+		DbUrl:       dbUrl,
 	}
 }
 
@@ -125,5 +130,82 @@ func (c *Client) ServiceHealth() (model.ServiceHealthResponse, error) {
 		return serviceHealthResponse, nil
 	}
 	return model.ServiceHealthResponse{}, errors.New("invalid service health response")
+
+}
+
+func (c *Client) SaveOnDb(payment model.Payment) bool {
+	body, err := easyjson.Marshal(payment)
+	if err != nil {
+		log.Printf("JSON marshal error: %v", err)
+		return false
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/payments", c.DbUrl), bytes.NewBuffer(body))
+	if err != nil {
+		log.Printf("Request creation error: %v", err)
+		return false
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	return resp.StatusCode >= 200 && resp.StatusCode < 300
+
+}
+
+func (c *Client) PurgeOnDb() bool {
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/purge-payments", c.DbUrl), nil)
+	if err != nil {
+		log.Printf("Request creation error: %v", err)
+		return false
+	}
+
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	return resp.StatusCode >= 200 && resp.StatusCode < 300
+
+}
+
+func (c *Client) GetSummary(from, to string) (model.SummaryResponse, error) {
+	baseUrl := fmt.Sprintf("%s/payments-summary", c.DbUrl)
+	u, err := url.Parse(baseUrl)
+	if err != nil {
+		log.Printf("Url error: %v", err)
+		return model.SummaryResponse{}, err
+	}
+	q := u.Query()
+	if from != "" && to != "" {
+		q.Set("from", from)
+		q.Set("to", to)
+	}
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		log.Printf("Request creation error: %v", err)
+		return model.SummaryResponse{}, err
+	}
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		return model.SummaryResponse{}, err
+	}
+	if resp.StatusCode == 200 {
+		var summary model.SummaryResponse
+		err = easyjson.UnmarshalFromReader(resp.Body, &summary)
+		if err != nil {
+			return model.SummaryResponse{}, err
+		}
+		return summary, nil
+	}
+	return model.SummaryResponse{}, errors.New("summary error")
 
 }

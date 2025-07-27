@@ -1,21 +1,21 @@
 package handler
 
 import (
+	"log"
+	"rb2025-v3/client"
 	"rb2025-v3/model"
-	"rb2025-v3/repository"
-	"time"
 
 	"github.com/mailru/easyjson"
 	"github.com/valyala/fasthttp"
 )
 
 type Handler struct {
-	Jobs       chan<- model.PaymentRequest
-	Repository *repository.Repository
+	Jobs   chan<- model.PaymentRequest
+	Client *client.Client
 }
 
-func NewHandler(jobs chan<- model.PaymentRequest, repository *repository.Repository) *Handler {
-	return &Handler{Jobs: jobs, Repository: repository}
+func NewHandler(jobs chan<- model.PaymentRequest, c *client.Client) *Handler {
+	return &Handler{Jobs: jobs, Client: c}
 }
 
 func (h *Handler) PostPayments(ctx *fasthttp.RequestCtx) {
@@ -45,7 +45,7 @@ func (h *Handler) PurgePayments(ctx *fasthttp.RequestCtx) {
 		ctx.Error("Method Not Allowed", fasthttp.StatusMethodNotAllowed)
 		return
 	}
-	h.Repository.Purge()
+	h.Client.PurgeOnDb()
 	ctx.SetStatusCode(fasthttp.StatusAccepted)
 }
 
@@ -56,19 +56,10 @@ func (h *Handler) GetSummary(ctx *fasthttp.RequestCtx) {
 	}
 	fromStr := string(ctx.QueryArgs().Peek("from"))
 	toStr := string(ctx.QueryArgs().Peek("to"))
-	from, err1 := time.Parse(time.RFC3339Nano, fromStr)
-	if err1 != nil {
-		from = time.Now().UTC().Add(-24 * time.Hour)
-	}
-	to, err2 := time.Parse(time.RFC3339Nano, toStr)
-	if err2 != nil {
-		to = time.Now().UTC()
-	}
-	defaultSummary := h.Repository.GetSummary("default", from, to)
-	fallbackSummary := h.Repository.GetSummary("fallback", from, to)
-	summary := model.SummaryResponse{
-		Default:  defaultSummary,
-		Fallback: fallbackSummary,
+	summary, err := h.Client.GetSummary(fromStr, toStr)
+	if err != nil {
+		log.Printf("Error get summary: %v", err)
+		ctx.Error("Error get summary", fasthttp.StatusInternalServerError)
 	}
 	ctx.Response.Header.Set("Content-Type", "application/json")
 	if _, err := easyjson.MarshalToWriter(&summary, ctx); err != nil {

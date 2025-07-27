@@ -30,7 +30,7 @@ type ProcessorHealthResponse struct {
 
 type Payment struct {
 	CorrelationID string    `json:"correlationId"`
-	Amount        int       `json:"amount"`
+	Amount        float64   `json:"amount"`
 	RequestedAt   time.Time `json:"requestedAt"`
 	Processor     int       `json:"processor"`
 }

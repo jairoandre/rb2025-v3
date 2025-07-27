@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonC80ae7adDecodeRinhaModel(in *jlexer.Lexer, out *SummaryResponse) {
+func easyjsonC80ae7adDecodeRb2025V3Model(in *jlexer.Lexer, out *SummaryResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -50,7 +50,7 @@ func easyjsonC80ae7adDecodeRinhaModel(in *jlexer.Lexer, out *SummaryResponse) {
 		in.Consumed()
 	}
 }
-func easyjsonC80ae7adEncodeRinhaModel(out *jwriter.Writer, in SummaryResponse) {
+func easyjsonC80ae7adEncodeRb2025V3Model(out *jwriter.Writer, in SummaryResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -70,27 +70,27 @@ func easyjsonC80ae7adEncodeRinhaModel(out *jwriter.Writer, in SummaryResponse) {
 // MarshalJSON supports json.Marshaler interface
 func (v SummaryResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC80ae7adEncodeRinhaModel(&w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v SummaryResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC80ae7adEncodeRinhaModel(w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *SummaryResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC80ae7adDecodeRinhaModel(&r, v)
+	easyjsonC80ae7adDecodeRb2025V3Model(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *SummaryResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC80ae7adDecodeRinhaModel(l, v)
+	easyjsonC80ae7adDecodeRb2025V3Model(l, v)
 }
-func easyjsonC80ae7adDecodeRinhaModel1(in *jlexer.Lexer, out *Summary) {
+func easyjsonC80ae7adDecodeRb2025V3Model1(in *jlexer.Lexer, out *Summary) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -123,7 +123,7 @@ func easyjsonC80ae7adDecodeRinhaModel1(in *jlexer.Lexer, out *Summary) {
 		in.Consumed()
 	}
 }
-func easyjsonC80ae7adEncodeRinhaModel1(out *jwriter.Writer, in Summary) {
+func easyjsonC80ae7adEncodeRb2025V3Model1(out *jwriter.Writer, in Summary) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -143,27 +143,27 @@ func easyjsonC80ae7adEncodeRinhaModel1(out *jwriter.Writer, in Summary) {
 // MarshalJSON supports json.Marshaler interface
 func (v Summary) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC80ae7adEncodeRinhaModel1(&w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Summary) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC80ae7adEncodeRinhaModel1(w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Summary) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC80ae7adDecodeRinhaModel1(&r, v)
+	easyjsonC80ae7adDecodeRb2025V3Model1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Summary) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC80ae7adDecodeRinhaModel1(l, v)
+	easyjsonC80ae7adDecodeRb2025V3Model1(l, v)
 }
-func easyjsonC80ae7adDecodeRinhaModel2(in *jlexer.Lexer, out *ServiceHealthResponse) {
+func easyjsonC80ae7adDecodeRb2025V3Model2(in *jlexer.Lexer, out *ServiceHealthResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -202,7 +202,7 @@ func easyjsonC80ae7adDecodeRinhaModel2(in *jlexer.Lexer, out *ServiceHealthRespo
 		in.Consumed()
 	}
 }
-func easyjsonC80ae7adEncodeRinhaModel2(out *jwriter.Writer, in ServiceHealthResponse) {
+func easyjsonC80ae7adEncodeRb2025V3Model2(out *jwriter.Writer, in ServiceHealthResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -237,27 +237,27 @@ func easyjsonC80ae7adEncodeRinhaModel2(out *jwriter.Writer, in ServiceHealthResp
 // MarshalJSON supports json.Marshaler interface
 func (v ServiceHealthResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC80ae7adEncodeRinhaModel2(&w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ServiceHealthResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC80ae7adEncodeRinhaModel2(w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *ServiceHealthResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC80ae7adDecodeRinhaModel2(&r, v)
+	easyjsonC80ae7adDecodeRb2025V3Model2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ServiceHealthResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC80ae7adDecodeRinhaModel2(l, v)
+	easyjsonC80ae7adDecodeRb2025V3Model2(l, v)
 }
-func easyjsonC80ae7adDecodeRinhaModel3(in *jlexer.Lexer, out *ProcessorHealthResponse) {
+func easyjsonC80ae7adDecodeRb2025V3Model3(in *jlexer.Lexer, out *ProcessorHealthResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -290,7 +290,7 @@ func easyjsonC80ae7adDecodeRinhaModel3(in *jlexer.Lexer, out *ProcessorHealthRes
 		in.Consumed()
 	}
 }
-func easyjsonC80ae7adEncodeRinhaModel3(out *jwriter.Writer, in ProcessorHealthResponse) {
+func easyjsonC80ae7adEncodeRb2025V3Model3(out *jwriter.Writer, in ProcessorHealthResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -310,27 +310,27 @@ func easyjsonC80ae7adEncodeRinhaModel3(out *jwriter.Writer, in ProcessorHealthRe
 // MarshalJSON supports json.Marshaler interface
 func (v ProcessorHealthResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC80ae7adEncodeRinhaModel3(&w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model3(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v ProcessorHealthResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC80ae7adEncodeRinhaModel3(w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model3(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *ProcessorHealthResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC80ae7adDecodeRinhaModel3(&r, v)
+	easyjsonC80ae7adDecodeRb2025V3Model3(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *ProcessorHealthResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC80ae7adDecodeRinhaModel3(l, v)
+	easyjsonC80ae7adDecodeRb2025V3Model3(l, v)
 }
-func easyjsonC80ae7adDecodeRinhaModel4(in *jlexer.Lexer, out *PaymentRequest) {
+func easyjsonC80ae7adDecodeRb2025V3Model4(in *jlexer.Lexer, out *PaymentRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -363,7 +363,7 @@ func easyjsonC80ae7adDecodeRinhaModel4(in *jlexer.Lexer, out *PaymentRequest) {
 		in.Consumed()
 	}
 }
-func easyjsonC80ae7adEncodeRinhaModel4(out *jwriter.Writer, in PaymentRequest) {
+func easyjsonC80ae7adEncodeRb2025V3Model4(out *jwriter.Writer, in PaymentRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -383,27 +383,27 @@ func easyjsonC80ae7adEncodeRinhaModel4(out *jwriter.Writer, in PaymentRequest) {
 // MarshalJSON supports json.Marshaler interface
 func (v PaymentRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC80ae7adEncodeRinhaModel4(&w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model4(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v PaymentRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC80ae7adEncodeRinhaModel4(w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model4(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *PaymentRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC80ae7adDecodeRinhaModel4(&r, v)
+	easyjsonC80ae7adDecodeRb2025V3Model4(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *PaymentRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC80ae7adDecodeRinhaModel4(l, v)
+	easyjsonC80ae7adDecodeRb2025V3Model4(l, v)
 }
-func easyjsonC80ae7adDecodeRinhaModel5(in *jlexer.Lexer, out *PaymentEvent) {
+func easyjsonC80ae7adDecodeRb2025V3Model5(in *jlexer.Lexer, out *PaymentEvent) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -438,7 +438,7 @@ func easyjsonC80ae7adDecodeRinhaModel5(in *jlexer.Lexer, out *PaymentEvent) {
 		in.Consumed()
 	}
 }
-func easyjsonC80ae7adEncodeRinhaModel5(out *jwriter.Writer, in PaymentEvent) {
+func easyjsonC80ae7adEncodeRb2025V3Model5(out *jwriter.Writer, in PaymentEvent) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -463,27 +463,27 @@ func easyjsonC80ae7adEncodeRinhaModel5(out *jwriter.Writer, in PaymentEvent) {
 // MarshalJSON supports json.Marshaler interface
 func (v PaymentEvent) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC80ae7adEncodeRinhaModel5(&w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model5(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v PaymentEvent) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC80ae7adEncodeRinhaModel5(w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model5(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *PaymentEvent) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC80ae7adDecodeRinhaModel5(&r, v)
+	easyjsonC80ae7adDecodeRb2025V3Model5(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *PaymentEvent) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC80ae7adDecodeRinhaModel5(l, v)
+	easyjsonC80ae7adDecodeRb2025V3Model5(l, v)
 }
-func easyjsonC80ae7adDecodeRinhaModel6(in *jlexer.Lexer, out *Payment) {
+func easyjsonC80ae7adDecodeRb2025V3Model6(in *jlexer.Lexer, out *Payment) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -505,7 +505,7 @@ func easyjsonC80ae7adDecodeRinhaModel6(in *jlexer.Lexer, out *Payment) {
 		case "correlationId":
 			out.CorrelationID = string(in.String())
 		case "amount":
-			out.Amount = int(in.Int())
+			out.Amount = float64(in.Float64())
 		case "requestedAt":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.RequestedAt).UnmarshalJSON(data))
@@ -522,7 +522,7 @@ func easyjsonC80ae7adDecodeRinhaModel6(in *jlexer.Lexer, out *Payment) {
 		in.Consumed()
 	}
 }
-func easyjsonC80ae7adEncodeRinhaModel6(out *jwriter.Writer, in Payment) {
+func easyjsonC80ae7adEncodeRb2025V3Model6(out *jwriter.Writer, in Payment) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -534,7 +534,7 @@ func easyjsonC80ae7adEncodeRinhaModel6(out *jwriter.Writer, in Payment) {
 	{
 		const prefix string = ",\"amount\":"
 		out.RawString(prefix)
-		out.Int(int(in.Amount))
+		out.Float64(float64(in.Amount))
 	}
 	{
 		const prefix string = ",\"requestedAt\":"
@@ -552,23 +552,23 @@ func easyjsonC80ae7adEncodeRinhaModel6(out *jwriter.Writer, in Payment) {
 // MarshalJSON supports json.Marshaler interface
 func (v Payment) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC80ae7adEncodeRinhaModel6(&w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model6(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Payment) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC80ae7adEncodeRinhaModel6(w, v)
+	easyjsonC80ae7adEncodeRb2025V3Model6(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Payment) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC80ae7adDecodeRinhaModel6(&r, v)
+	easyjsonC80ae7adDecodeRb2025V3Model6(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Payment) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC80ae7adDecodeRinhaModel6(l, v)
+	easyjsonC80ae7adDecodeRb2025V3Model6(l, v)
 }

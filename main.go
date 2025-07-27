@@ -9,8 +9,8 @@ import (
 	"rb2025-v3/client"
 	"rb2025-v3/handler"
 	"rb2025-v3/model"
-	"rb2025-v3/repository"
 	"rb2025-v3/worker"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -30,15 +30,16 @@ func main() {
 	defer stop()
 
 	jobs := make(chan model.PaymentRequest, 100000)
-	redisUrl := readEnv("REDIS_URL", "localhost:6379")
 	defaultUrl := readEnv("DEFAULT_URL", "http://localhost:8001")
 	fallbackUrl := readEnv("FALLBACK_URL", "http://localhost:8002")
 	healthUrl := readEnv("HEALTH_URL", "http://localhost:9001")
+	dbUrl := readEnv("DB_URL", "http://localhost:9002")
+	numWorkers, _ := strconv.Atoi(readEnv("NUM_WORKERS", "2000"))
+	defaultTolerance, _ := strconv.Atoi(readEnv("DEFAULT_TOLERANCE", "1500"))
 
-	r := repository.NewRepository(redisUrl)
-	c := client.NewClient(defaultUrl, fallbackUrl, healthUrl)
-	h := handler.NewHandler(jobs, r)
-	w := worker.NewWorker(r, c, jobs, 1000)
+	c := client.NewClient(defaultUrl, fallbackUrl, healthUrl, dbUrl)
+	h := handler.NewHandler(jobs, c)
+	w := worker.NewWorker(c, jobs, numWorkers, defaultTolerance)
 
 	server := &fasthttp.Server{
 		Handler: func(ctx *fasthttp.RequestCtx) {
